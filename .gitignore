@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.playwright-mcp/
+*.png
+*.jpg
+*.jpeg
+true-trading-v2-main/
+tsconfig.tsbuildinfo
