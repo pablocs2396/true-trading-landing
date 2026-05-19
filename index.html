@@ -2,10 +2,153 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="TrueTrading — Análisis de mercado, formación y señales de trading. Todo en una app." />
-    <title>TrueTrading</title>
+
+    <!-- Primary SEO -->
+    <title>TrueTrading — App de Trading con Señales, Análisis Técnico y Formación</title>
+    <meta name="description" content="Aprende trading con análisis técnico real, señales verificadas de Forex e índices con entrada y stop loss, formación por niveles y diario de operaciones. Gratis en iOS y Android." />
+    <meta name="keywords" content="trading app, señales de trading, análisis técnico, formación trading, señales forex, gestión del riesgo, trading gratis, diario de trading" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://truetrading.app/" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TrueTrading" />
+    <meta property="og:url" content="https://truetrading.app/" />
+    <meta property="og:title" content="TrueTrading — Trading sin mentiras" />
+    <meta property="og:description" content="Señales de trading verificadas, formación real por niveles y diario de operaciones. Accede al análisis cuando demuestras que sabes operar. Gratis en iOS y Android." />
+    <meta property="og:image" content="https://truetrading.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_ES" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TrueTrading — Trading sin mentiras" />
+    <meta name="twitter:description" content="Señales de trading verificadas, formación real por niveles y diario de operaciones. Gratis en iOS y Android." />
+    <meta name="twitter:image" content="https://truetrading.app/og-image.png" />
+
+    <!-- JSON-LD: MobileApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "name": "TrueTrading",
+      "description": "App de trading con señales verificadas de Forex e índices, formación por niveles con acceso por mérito, diario de operaciones con Myfxbook y comunidad de traders.",
+      "url": "https://truetrading.app/",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "iOS, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1200"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "TrueTrading",
+        "url": "https://truetrading.app/"
+      },
+      "featureList": [
+        "Señales de trading en tiempo real con entrada, take profit y stop loss",
+        "Acceso a señales por mérito: se desbloquea completando formación",
+        "Formación en trading: fundamentos, análisis técnico y gestión del riesgo",
+        "Diario de trading sincronizado con Myfxbook",
+        "Ranking de comunidad basado en racha diaria de constancia"
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "TrueTrading",
+      "url": "https://truetrading.app/",
+      "logo": "https://truetrading.app/icon.png",
+      "description": "Plataforma de trading que combina señales verificadas, formación y comunidad. El acceso a las señales se gana completando cursos, no se compra.",
+      "sameAs": []
+    }
+    </script>
+
+    <!-- JSON-LD: FAQPage (AEO) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Es gratuita la app de TrueTrading?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí, TrueTrading es gratuita para descargar en iOS y Android. El acceso a señales, formación y comunidad está incluido sin coste."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Por qué necesito completar cursos antes de acceder a las señales de trading?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Porque operar sin entender el riesgo es peligroso. En TrueTrading las señales son útiles solo si el trader sabe interpretarlas. Por eso el acceso se gana completando formación, no se compra."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué mercados analiza TrueTrading?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "TrueTrading analiza principalmente Forex (pares de divisas), índices bursátiles y materias primas. Las señales incluyen dirección, entrada, take profit y stop loss con estado en tiempo real."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cómo funciona el Diario de Trading en TrueTrading?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Conecta tu cuenta de Myfxbook y tus operaciones se sincronizan automáticamente. Verás tu win rate, pips totales, historial y estadísticas detalladas de tu rendimiento."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué es la racha diaria en TrueTrading?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La racha mide los días consecutivos que accedes a la app. Es un recordatorio de que la constancia es parte del trading. Los traders con más racha aparecen en el ranking de la comunidad."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD: WebSite (AEO — sitelinks searchbox) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "TrueTrading",
+      "url": "https://truetrading.app/",
+      "description": "App gratuita de trading con señales verificadas de Forex e índices, formación por niveles y diario de operaciones.",
+      "inLanguage": "es",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://truetrading.app/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />

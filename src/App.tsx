@@ -1,8 +1,36 @@
 import { useEffect, useRef, useState } from 'react'
-import { Apple, Smartphone, TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, ChevronRight, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Check, Star, Megaphone } from 'lucide-react'
+import { TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, ChevronRight, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Check, Megaphone } from 'lucide-react'
 
 const APP_STORE_URL = '#'
 const GOOGLE_PLAY_URL = '#'
+
+/* ─── Store logos ─────────────────────────────────────────────── */
+function AppStoreLogo({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+    </svg>
+  )
+}
+
+function AndroidLogo({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.523 15.341c-.551 0-.999-.449-.999-1s.448-.999.999-.999.999.448.999.999-.448 1-.999 1m-11.046 0c-.551 0-.999-.449-.999-1s.448-.999.999-.999.999.448.999.999-.448 1-.999 1m11.405-6.02l1.997-3.459a.416.416 0 00-.152-.568.416.416 0 00-.568.152l-2.022 3.503A11.33 11.33 0 0012 7.851c-1.854 0-3.59.393-5.137 1.099L4.841 5.447a.416.416 0 00-.568-.152.416.416 0 00-.152.568l1.997 3.459C2.689 10.187.343 13.233 0 17h24c-.344-3.767-2.689-6.813-6.118-8.679"/>
+    </svg>
+  )
+}
+
+/* ─── Platform detection hook ────────────────────────────────── */
+function usePlatform() {
+  const [platform] = useState(() => {
+    const ua = navigator.userAgent
+    const isIOS = /iPhone|iPad|iPod/i.test(ua)
+    const isAndroid = /Android/i.test(ua)
+    return { isIOS, isAndroid, isMobile: isIOS || isAndroid }
+  })
+  return platform
+}
 
 /* ─── Scroll reveal hook ──────────────────────────────────────── */
 function useScrollReveal<T extends Element>() {
@@ -21,36 +49,17 @@ function useScrollReveal<T extends Element>() {
   return { ref, inView }
 }
 
-/* ─── Count-up hook ───────────────────────────────────────────── */
-function useCountUp(target: number, inView: boolean, duration = 1400) {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    if (!inView) return
-    let startTime: number | null = null
-    let rafId: number
-    const step = (ts: number) => {
-      if (!startTime) startTime = ts
-      const progress = Math.min((ts - startTime) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.floor(eased * target))
-      if (progress < 1) rafId = requestAnimationFrame(step)
-    }
-    rafId = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(rafId)
-  }, [inView, target, duration])
-  return count
-}
-
 /* ─── Download buttons ────────────────────────────────────────── */
 function DownloadButtons() {
+  const { isAndroid } = usePlatform()
   return (
     <div className="flex flex-wrap gap-3">
-      <a href={APP_STORE_URL} className="btn-primary">
-        <Apple size={14} strokeWidth={2} />
+      <a href={APP_STORE_URL} className={isAndroid ? 'btn-ghost' : 'btn-primary'}>
+        <AppStoreLogo size={14} />
         App Store
       </a>
-      <a href={GOOGLE_PLAY_URL} className="btn-ghost">
-        <Smartphone size={14} strokeWidth={1.5} />
+      <a href={GOOGLE_PLAY_URL} className={isAndroid ? 'btn-primary' : 'btn-ghost'}>
+        <AndroidLogo size={14} />
         Google Play
       </a>
     </div>
@@ -75,9 +84,9 @@ function PhoneMockup() {
         style={{
           width: '260px',
           borderRadius: '38px',
-          background: '#111111',
-          border: '1px solid rgba(255,255,255,0.12)',
-          boxShadow: '0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)',
+          background: '#1E1E1E',
+          border: '1px solid #2C2C2C',
+          boxShadow: '0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)',
           overflow: 'hidden',
           padding: '12px 0 0',
         }}
@@ -85,13 +94,13 @@ function PhoneMockup() {
         {/* Notch */}
         <div className="flex justify-center mb-3">
           <div style={{ width: '80px', height: '22px', background: '#000', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1A1A1A', border: '1px solid rgba(255,255,255,0.06)' }} />
-            <div style={{ width: '52px', height: '8px', borderRadius: '4px', background: '#1A1A1A' }} />
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#2A2A2A', border: '1px solid #252525' }} />
+            <div style={{ width: '52px', height: '8px', borderRadius: '4px', background: '#2A2A2A' }} />
           </div>
         </div>
 
         {/* App content */}
-        <div style={{ padding: '0 14px', paddingBottom: '80px' }}>
+        <div style={{ padding: '0 14px', paddingBottom: '80px', background: '#121212' }}>
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -100,7 +109,7 @@ function PhoneMockup() {
             </div>
             {/* Avatar with signal dot */}
             <div className="relative">
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#1A1A1A', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#2A2A2A', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: '13px', fontWeight: '700', color: '#FFFFFF' }}>C</span>
               </div>
               <div style={{ position: 'absolute', bottom: '0', right: '0', width: '10px', height: '10px', borderRadius: '50%', background: '#10B981', border: '2px solid #111111' }} />
@@ -108,7 +117,7 @@ function PhoneMockup() {
           </div>
 
           {/* Racha card */}
-          <div style={{ background: '#111111', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '14px', padding: '12px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ background: '#1E1E1E', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '14px', padding: '12px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div className="flex items-center gap-2.5">
               <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Flame size={14} strokeWidth={0} fill="#10B981" style={{ color: '#10B981' }} />
@@ -123,7 +132,7 @@ function PhoneMockup() {
 
           {/* Signal section */}
           <p style={{ fontSize: '9px', fontWeight: '700', color: '#6B7280', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>Última señal</p>
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px' }}>
+          <div style={{ background: '#1E1E1E', border: '1px solid #2C2C2C', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px' }}>
             {/* Signal top bar */}
             <div style={{ borderTop: '2px solid #10B981', padding: '12px 14px' }}>
               <div className="flex items-center gap-2 mb-2">
@@ -155,7 +164,7 @@ function PhoneMockup() {
 
           {/* Ranking preview */}
           <p style={{ fontSize: '9px', fontWeight: '700', color: '#6B7280', letterSpacing: '1px', marginBottom: '8px', textTransform: 'uppercase' }}>Top reacciones</p>
-          <div style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 14px' }}>
+          <div style={{ background: '#1E1E1E', border: '1px solid #2C2C2C', borderRadius: '14px', padding: '10px 14px' }}>
             {[
               { pos: '1', name: 'MarcoT', pips: '+384', color: '#F59E0B' },
               { pos: '2', name: 'SofíaV', pips: '+291', color: '#9CA3AF' },
@@ -177,14 +186,14 @@ function PhoneMockup() {
             bottom: '16px',
             left: '12px',
             right: '12px',
-            background: 'rgba(0,0,0,0.9)',
+            background: 'rgba(18,18,18,0.95)',
             backdropFilter: 'blur(16px)',
             borderRadius: '40px',
             padding: '6px 8px',
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            border: '1px solid rgba(255,255,255,0.08)',
+            border: '1px solid #2C2C2C',
             boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
           }}
         >
@@ -201,7 +210,7 @@ function PhoneMockup() {
             <svg key="diary" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8E8E93" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
             <svg key="tools" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8E8E93" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
           ].map((icon, i) => (
-            <div key={i} style={{ flex: 1, height: '42px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div key={i} style={{ flex: 1, height: '42px', borderRadius: '50%', border: '1px solid #2C2C2C', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {icon}
             </div>
           ))}
@@ -214,16 +223,21 @@ function PhoneMockup() {
 /* ─── Navbar ──────────────────────────────────────────────────── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const { isAndroid } = usePlatform()
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const downloadHref = isAndroid ? GOOGLE_PLAY_URL : APP_STORE_URL
+
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        background: 'rgba(0,0,0,0.85)',
+        background: 'rgba(18,18,18,0.92)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderBottom: `1px solid ${scrolled ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)'}`,
@@ -237,8 +251,8 @@ function Navbar() {
             TrueTrading
           </span>
         </div>
-        <a href={APP_STORE_URL} className="btn-nav">
-          <Apple size={12} strokeWidth={2} />
+        <a href={downloadHref} className="btn-nav">
+          {isAndroid ? <AndroidLogo size={12} /> : <AppStoreLogo size={12} />}
           Descargar
         </a>
       </div>
@@ -256,7 +270,7 @@ function Hero() {
           {/* Copy — left */}
           <div>
             <h1
-              className="text-white font-black leading-[0.92] mb-7"
+              className="text-white font-black leading-[0.92] mb-7 hero-title"
               style={{
                 fontSize: 'clamp(52px, 7vw, 92px)',
                 letterSpacing: '-0.04em',
@@ -269,7 +283,7 @@ function Hero() {
               mentiras.
             </h1>
             <p
-              className="mb-10 leading-relaxed"
+              className="mb-10 leading-relaxed hero-subtitle"
               style={{
                 color: '#9CA3AF',
                 fontSize: 'clamp(16px, 1.6vw, 19px)',
@@ -280,10 +294,12 @@ function Hero() {
               Accedes a las señales cuando demuestras que sabes operar.
               No antes. Eso es TrueTrading.
             </p>
-            <DownloadButtons />
-            <p className="mt-6 text-xs" style={{ color: '#4B5563' }}>
-              Gratis · iOS & Android
-            </p>
+            <div className="hero-actions">
+              <DownloadButtons />
+              <p className="mt-6 text-xs" style={{ color: '#4B5563' }}>
+                Gratis · iOS & Android
+              </p>
+            </div>
           </div>
 
           {/* Phone mockup — right */}
@@ -299,12 +315,10 @@ function Hero() {
 /* ─── Stats bar ───────────────────────────────────────────────── */
 function StatsBar() {
   const { ref, inView } = useScrollReveal<HTMLDivElement>()
-  const c1 = useCountUp(10000, inView, 1400)
-  const c2 = useCountUp(500, inView, 1200)
 
   const items = [
-    { display: `+${c1.toLocaleString('es-ES')}`, label: 'traders activos', delay: 0 },
-    { display: `+${c2.toLocaleString('es-ES')}`, label: 'análisis publicados', delay: 100 },
+    { display: '+10.000', label: 'traders activos', delay: 0 },
+    { display: '+500', label: 'análisis publicados', delay: 100 },
     { display: '2', label: 'plataformas (iOS · Android)', delay: 200 },
   ]
   return (
@@ -348,7 +362,7 @@ function MeritAccess() {
   const { ref, inView } = useScrollReveal<HTMLDivElement>()
 
   return (
-    <section className="py-32 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <section className="py-32 px-6" style={{ borderTop: '1px solid #252525' }}>
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
@@ -412,7 +426,7 @@ function MeritAccess() {
                   key={s.step}
                   className={`flex items-start gap-4 p-5 rounded-2xl step-card reveal ${inView ? 'in-view' : ''}`}
                   style={{
-                    background: s.active ? 'rgba(16,185,129,0.04)' : '#111111',
+                    background: s.active ? 'rgba(16,185,129,0.04)' : '#1E1E1E',
                     border: `1px solid ${s.active ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}`,
                     animationDelay: `${i * 80}ms`,
                   }}
@@ -447,7 +461,7 @@ function SignalMockup() {
     { label: 'TP2', price: '1.0934', pips: '+84', hit: false },
   ]
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: '#000000', border: '1px solid rgba(255,255,255,0.08)', borderTop: '2px solid #10B981' }}>
+    <div className="rounded-xl overflow-hidden" style={{ background: '#000000', border: '1px solid #2C2C2C', borderTop: '2px solid #10B981' }}>
       {/* Section label — same style as app */}
       <div className="px-4 pt-3 pb-0">
         <span style={{ fontSize: '10px', fontWeight: '700', color: '#6B7280', letterSpacing: '1.2px' }}>ÚLTIMA SEÑAL</span>
@@ -467,7 +481,7 @@ function SignalMockup() {
         <div className="text-xs mb-3" style={{ color: '#4B5563' }}>Entrada · 1.0850</div>
         <div className="flex flex-col gap-1.5 mb-3">
           {tps.map(tp => (
-            <div key={tp.label} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: tp.hit ? 'rgba(16,185,129,0.08)' : '#111111', border: `1px solid ${tp.hit ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}` }}>
+            <div key={tp.label} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: tp.hit ? 'rgba(16,185,129,0.08)' : '#1E1E1E', border: `1px solid ${tp.hit ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}` }}>
               <span style={{ color: '#4B5563', width: '24px' }}>{tp.label}</span>
               <span className="font-tabular flex-1" style={{ color: '#FFFFFF' }}>{tp.price}</span>
               <span className="flex items-center gap-1" style={{ color: tp.hit ? '#10B981' : '#4B5563' }}>
@@ -481,14 +495,14 @@ function SignalMockup() {
       </div>
 
       {/* Second signal — SELL, closed */}
-      <div className="p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderLeft: '2px solid #EF4444' }}>
+      <div className="p-4" style={{ borderTop: '1px solid #252525', borderLeft: '2px solid #EF4444' }}>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>
             <TrendingDown size={10} strokeWidth={2.5} /> SELL
           </span>
           <span className="font-semibold text-xs" style={{ color: '#9CA3AF' }}>GBP/USD</span>
           <span className="ml-auto text-xs font-bold font-tabular" style={{ color: '#10B981' }}>+67 pips</span>
-          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#111111', color: '#6B7280' }}>Cerrada</span>
+          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#1E1E1E', color: '#6B7280' }}>Cerrada</span>
         </div>
       </div>
     </div>
@@ -520,7 +534,7 @@ function StreakRankingMockup() {
       </div>
 
       {/* Ranking */}
-      <div className="p-3 rounded-xl" style={{ background: '#000000', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="p-3 rounded-xl" style={{ background: '#000000', border: '1px solid #2C2C2C' }}>
         <p style={{ fontSize: '10px', fontWeight: '700', color: '#6B7280', letterSpacing: '1.2px', marginBottom: '10px' }}>TOP REACCIONES</p>
         <div className="flex flex-col gap-2">
           {ranking.map((r) => (
@@ -531,7 +545,7 @@ function StreakRankingMockup() {
             </div>
           ))}
         </div>
-        <div className="mt-3 pt-3 flex items-center justify-center gap-1" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="mt-3 pt-3 flex items-center justify-center gap-1" style={{ borderTop: '1px solid #252525' }}>
           <Trophy size={10} style={{ color: '#10B981' }} strokeWidth={2} />
           <span style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>Ver ranking completo</span>
         </div>
@@ -550,10 +564,10 @@ function DiaryMockup() {
   ]
   const bars = [40, 65, 30, 80, 55, 90, 45, 70, 60, 85]
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: '#000000', border: '1px solid rgba(255,255,255,0.08)' }}>
+    <div className="rounded-xl overflow-hidden" style={{ background: '#000000', border: '1px solid #2C2C2C' }}>
       <div className="p-4 grid grid-cols-2 gap-2">
         {stats.map(s => (
-          <div key={s.label} className="rounded-lg p-3" style={{ background: '#111111' }}>
+          <div key={s.label} className="rounded-lg p-3" style={{ background: '#1E1E1E' }}>
             <div className="text-xs mb-1.5" style={{ color: '#4B5563' }}>{s.label}</div>
             <div className="font-bold font-tabular" style={{ color: s.positive === true ? '#10B981' : '#FFFFFF', fontSize: '20px', letterSpacing: '-0.03em' }}>{s.value}</div>
           </div>
@@ -581,7 +595,7 @@ function CoursesMockup() {
   return (
     <div className="flex flex-col gap-2">
       {/* Progress */}
-      <div className="px-3 py-2.5 rounded-xl flex items-center gap-3" style={{ background: '#111111', border: '1px solid rgba(16,185,129,0.2)' }}>
+      <div className="px-3 py-2.5 rounded-xl flex items-center gap-3" style={{ background: '#1E1E1E', border: '1px solid rgba(16,185,129,0.2)' }}>
         <div className="flex-1">
           <div className="flex justify-between mb-1.5">
             <span className="text-xs font-medium" style={{ color: '#FFFFFF' }}>Progreso general</span>
@@ -593,8 +607,8 @@ function CoursesMockup() {
         </div>
       </div>
       {courses.map(c => (
-        <div key={c.title} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#111111', border: `1px solid ${c.done ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)'}` }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: c.done ? 'rgba(16,185,129,0.1)' : '#1A1A1A' }}>
+        <div key={c.title} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#1E1E1E', border: `1px solid ${c.done ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)'}` }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: c.done ? 'rgba(16,185,129,0.1)' : '#2A2A2A' }}>
             {c.done
               ? <CheckCircle size={14} strokeWidth={2} style={{ color: '#10B981' }} />
               : <BookOpen size={14} strokeWidth={1.5} style={{ color: c.levelColor }} />
@@ -607,8 +621,8 @@ function CoursesMockup() {
           <span className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: `${c.levelColor}18`, color: c.levelColor }}>{c.level}</span>
         </div>
       ))}
-      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#1A1A1A' }}>
+      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#1E1E1E', border: '1px solid #252525' }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#2A2A2A' }}>
           <FileText size={14} strokeWidth={1.5} style={{ color: '#6B7280' }} />
         </div>
         <div className="flex-1">
@@ -631,7 +645,7 @@ function CommunityMockup() {
   return (
     <div className="flex flex-col gap-1.5">
       {channels.map(ch => (
-        <div key={ch.name} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: ch.name === 'Señales' ? 'rgba(16,185,129,0.07)' : '#111111', border: `1px solid ${ch.name === 'Señales' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)'}` }}>
+        <div key={ch.name} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: ch.name === 'Señales' ? 'rgba(16,185,129,0.07)' : '#1E1E1E', border: `1px solid ${ch.name === 'Señales' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)'}` }}>
           <span className="w-6 flex items-center justify-center">
             <ch.Icon size={13} strokeWidth={1.5} style={{ color: ch.name === 'Señales' ? '#10B981' : '#6B7280' }} />
           </span>
@@ -653,7 +667,7 @@ function Features() {
   const { ref, inView } = useScrollReveal<HTMLDivElement>()
 
   return (
-    <section className="py-32 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <section className="py-32 px-6" style={{ borderTop: '1px solid #252525' }}>
       <div className="max-w-6xl mx-auto">
         <div className={`mb-16 reveal ${inView ? 'in-view' : ''}`}>
           <p className="text-xs font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#10B981' }}>La plataforma</p>
@@ -666,7 +680,7 @@ function Features() {
         <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-auto">
 
           {/* Señales — spans 2 cols */}
-          <div className={`lg:col-span-2 rounded-2xl p-6 flex flex-col gap-6 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)', animationDelay: '0ms' }}>
+          <div className={`lg:col-span-2 rounded-2xl p-6 flex flex-col gap-6 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#1E1E1E', border: '1px solid #252525', animationDelay: '0ms' }}>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Zap size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
@@ -678,7 +692,7 @@ function Features() {
           </div>
 
           {/* Racha + Ranking — 1 col */}
-          <div className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)', animationDelay: '60ms' }}>
+          <div className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#1E1E1E', border: '1px solid #252525', animationDelay: '60ms' }}>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Trophy size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
@@ -690,7 +704,7 @@ function Features() {
           </div>
 
           {/* Formación — 1 col */}
-          <div className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)', animationDelay: '120ms' }}>
+          <div className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#1E1E1E', border: '1px solid #252525', animationDelay: '120ms' }}>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
@@ -702,7 +716,7 @@ function Features() {
           </div>
 
           {/* Comunidad */}
-          <div className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)', animationDelay: '160ms' }}>
+          <div className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#1E1E1E', border: '1px solid #252525', animationDelay: '160ms' }}>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <MessageSquare size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
@@ -714,7 +728,7 @@ function Features() {
           </div>
 
           {/* Diario — spans 2 cols */}
-          <div className={`lg:col-span-2 rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)', animationDelay: '200ms' }}>
+          <div className={`lg:col-span-2 rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`} style={{ background: '#1E1E1E', border: '1px solid #252525', animationDelay: '200ms' }}>
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -776,7 +790,7 @@ function Testimonials() {
   const { ref, inView } = useScrollReveal<HTMLDivElement>()
 
   return (
-    <section className="py-32 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <section className="py-32 px-6" style={{ borderTop: '1px solid #252525' }}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-16">
           <p className="text-xs font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#10B981' }}>
@@ -793,21 +807,16 @@ function Testimonials() {
             <div
               key={t.name}
               className={`rounded-2xl p-6 flex flex-col gap-5 bento-card reveal ${inView ? 'in-view' : ''}`}
-              style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.06)', animationDelay: `${i * 70}ms` }}
+              style={{ background: '#1E1E1E', border: '1px solid #252525', animationDelay: `${i * 70}ms` }}
             >
-              <div className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} size={12} strokeWidth={0} fill="#10B981" style={{ color: '#10B981' }} />
-                ))}
-              </div>
               <p className="text-sm flex-1" style={{ color: '#9CA3AF', lineHeight: '1.7' }}>
                 "{t.quote}"
               </p>
               <div className="inline-flex self-start text-xs font-medium px-3 py-1.5 rounded-full font-tabular" style={{ background: `${t.color}12`, color: t.color, border: `1px solid ${t.color}25` }}>
                 {t.metric}
               </div>
-              <div className="flex items-center gap-3 pt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold" style={{ background: '#1A1A1A', color: '#6B7280' }}>
+              <div className="flex items-center gap-3 pt-1" style={{ borderTop: '1px solid #252525' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold" style={{ background: '#2A2A2A', color: '#6B7280' }}>
                   {t.initials}
                 </div>
                 <div>
@@ -827,14 +836,14 @@ function Testimonials() {
 function Manifesto() {
   const { ref, inView } = useScrollReveal<HTMLElement>()
   return (
-    <section ref={ref} className="py-32 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <section ref={ref} className="py-32 px-6" style={{ borderTop: '1px solid #252525' }}>
       <div className="max-w-6xl mx-auto">
         <p
           className={`font-bold leading-tight reveal ${inView ? 'in-view' : ''}`}
           style={{ color: '#FFFFFF', fontSize: 'clamp(28px, 4vw, 52px)', letterSpacing: '-0.03em', maxWidth: '760px' }}
         >
           "Las señales sin criterio son ruido.{' '}
-          <span style={{ color: '#555555' }}>
+          <span style={{ color: '#686868' }}>
             El criterio se aprende. Nosotros te lo enseñamos."
           </span>
         </p>
@@ -870,21 +879,64 @@ const faqs = [
 function FAQItem({ q, a }: { q: string; a: string; i: number }) {
   const [open, setOpen] = useState(false)
   return (
-    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      style={{
+        borderBottom: '1px solid #252525',
+        transition: 'border-color 200ms cubic-bezier(0.23, 1, 0.32, 1)',
+      }}
+    >
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between gap-4 py-5 text-left"
+        className="faq-btn w-full flex items-center justify-between gap-4 py-5 text-left"
         style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+        aria-expanded={open}
       >
-        <span className="font-medium text-sm" style={{ color: '#FFFFFF' }}>{q}</span>
+        <span
+          className="font-medium text-sm"
+          style={{
+            color: open ? '#FFFFFF' : '#9CA3AF',
+            transition: 'color 200ms cubic-bezier(0.23, 1, 0.32, 1)',
+          }}
+        >
+          {q}
+        </span>
         <ChevronDown
           size={16}
           strokeWidth={1.5}
-          style={{ color: '#6B7280', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms var(--ease-out)', flexShrink: 0 }}
+          style={{
+            color: open ? '#10B981' : '#4B5563',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 280ms cubic-bezier(0.23, 1, 0.32, 1), color 200ms cubic-bezier(0.23, 1, 0.32, 1)',
+            flexShrink: 0,
+          }}
         />
       </button>
-      <div style={{ overflow: 'hidden', maxHeight: open ? '200px' : '0', transition: open ? 'max-height 280ms cubic-bezier(0.23, 1, 0.32, 1)' : 'max-height 180ms cubic-bezier(0.55, 0, 1, 0.45)' }}>
-        <p className="pb-5 text-sm" style={{ color: '#6B7280', lineHeight: '1.7' }}>{a}</p>
+      {/* Grid rows trick: animates to actual content height, not arbitrary max */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: open ? '1fr' : '0fr',
+          transition: open
+            ? 'grid-template-rows 300ms cubic-bezier(0.23, 1, 0.32, 1)'
+            : 'grid-template-rows 200ms cubic-bezier(0.55, 0, 1, 0.45)',
+        }}
+      >
+        <div style={{ overflow: 'hidden', minHeight: 0 }}>
+          <p
+            className="pb-5 text-sm"
+            style={{
+              color: '#6B7280',
+              lineHeight: '1.7',
+              opacity: open ? 1 : 0,
+              transform: open ? 'translateY(0)' : 'translateY(-4px)',
+              transition: open
+                ? 'opacity 250ms 60ms cubic-bezier(0.23, 1, 0.32, 1), transform 250ms 60ms cubic-bezier(0.23, 1, 0.32, 1)'
+                : 'opacity 120ms cubic-bezier(0.55, 0, 1, 0.45), transform 120ms cubic-bezier(0.55, 0, 1, 0.45)',
+            }}
+          >
+            {a}
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -893,7 +945,7 @@ function FAQItem({ q, a }: { q: string; a: string; i: number }) {
 function FAQ() {
   const { ref, inView } = useScrollReveal<HTMLDivElement>()
   return (
-    <section className="py-32 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <section className="py-32 px-6" style={{ borderTop: '1px solid #252525' }}>
       <div className="max-w-6xl mx-auto">
         <div ref={ref} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           <div className={`reveal ${inView ? 'in-view' : ''}`}>
@@ -918,7 +970,7 @@ function FAQ() {
 function CTASection() {
   const { ref, inView } = useScrollReveal<HTMLElement>()
   return (
-    <section ref={ref} className="py-40 px-6" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <section ref={ref} className="py-40 px-6" style={{ borderTop: '1px solid #252525' }}>
       <div className="max-w-6xl mx-auto">
         <p className="text-xs font-medium tracking-[0.15em] uppercase mb-6" style={{ color: '#10B981' }}>
           Empieza gratis
@@ -943,16 +995,16 @@ function CTASection() {
 /* ─── Footer ──────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="px-6 py-10" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#000000' }}>
+    <footer className="px-6 py-10" style={{ borderTop: '1px solid #252525', background: '#121212' }}>
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-2">
           <img src="/icon.png" alt="TrueTrading" className="w-5 h-5 rounded-md opacity-60" />
           <span className="text-xs" style={{ color: '#4B5563' }}>© 2025 TrueTrading</span>
         </div>
         <div className="flex items-center gap-8">
-          {['Privacidad', 'Términos', 'Contacto'].map((link) => (
-            <a key={link} href="#" className="footer-link text-xs" style={{ color: '#4B5563' }}>{link}</a>
-          ))}
+          <a href="/privacidad" className="footer-link text-xs" style={{ color: '#4B5563' }}>Privacidad</a>
+          <a href="/terminos" className="footer-link text-xs" style={{ color: '#4B5563' }}>Términos</a>
+          <a href="mailto:hola@truetrading.app" className="footer-link text-xs" style={{ color: '#4B5563' }}>Contacto</a>
         </div>
       </div>
     </footer>
@@ -962,7 +1014,7 @@ function Footer() {
 /* ─── Root ────────────────────────────────────────────────────── */
 export default function App() {
   return (
-    <div style={{ background: '#000000', minHeight: '100vh', color: '#FFFFFF' }}>
+    <div style={{ background: '#121212', minHeight: '100vh', color: '#FFFFFF' }}>
       <Navbar />
       <Hero />
       <StatsBar />

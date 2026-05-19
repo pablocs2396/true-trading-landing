@@ -4,7 +4,7 @@
 
 **Premium y seria.** Blackrock-vibes: sobria, de confianza, sin artificios. Tipografía fuerte, mucho espacio, color mínimo. Nada de AI slop, nada de cripto-gamer, nada de stock photos corporativos.
 
-Referencia de tono: Bloomberg Terminal aesthetics trasladado a web moderna. Stripe para el ritmo de layout. Sequoia Capital para la sobriedad.
+Referencia de tono: Bloomberg Terminal aesthetics trasladado a web moderna. Stripe para el ritmo de layout. Sequoia Capital para la sobriedad. Apple para la densidad de información y la jerarquía visual. Uber para la austeridad tipográfica. Linear para los detalles de UI y la precisión de los componentes.
 
 ---
 
@@ -25,14 +25,14 @@ Extraído del sistema de diseño de la app móvil (dark-first, blanco/negro como
 | `textSecondary` | `#9CA3AF` | Subtítulos, body secundario |
 | `textMuted` | `#6B7280` | Labels, footnotes |
 
-### Acento semántico (uso muy controlado)
+### Acento semántico
 
 | Token | Hex | Uso |
 |---|---|---|
-| `success` | `#10B981` | Iconos de beneficio, check marks |
+| `success` | `#10B981` | **CTA primario** (btn-primary, btn-nav), iconos de beneficio, checks, estados activos |
 | `warning` | `#F59E0B` | Solo si hay disclaimer o aviso |
 
-> Regla: el verde `#10B981` puede aparecer puntualmente como acento en iconografía de "retorno positivo" o checks. Nunca como color dominante.
+> Regla: el verde `#10B981` es el acento de acción — destaca en los CTAs con glow verde, y aparece puntualmente como acento en iconografía positiva. Es la identidad visual directa de la app móvil.
 
 ---
 

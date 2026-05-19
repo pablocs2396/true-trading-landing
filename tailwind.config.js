@@ -4,10 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#000000',
-        surface: '#111111',
-        'surface-alt': '#1A1A1A',
-        border: 'rgba(255,255,255,0.08)',
+        background: '#121212',
+        surface: '#1E1E1E',
+        'surface-alt': '#2A2A2A',
+        border: '#2C2C2C',
+        'border-light': '#252525',
         'text-primary': '#FFFFFF',
         'text-secondary': '#9CA3AF',
         'text-muted': '#6B7280',
