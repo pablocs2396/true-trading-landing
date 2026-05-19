@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, ChevronRight, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Check, Megaphone } from 'lucide-react'
 
-const APP_STORE_URL = '#'
-const GOOGLE_PLAY_URL = '#'
+const APP_STORE_URL = 'https://apps.apple.com/es/app/truetrading/id6758015608'
+const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.truetrading.android&hl=es_419'
 
 /* ─── Store logos ─────────────────────────────────────────────── */
 function AppStoreLogo({ size = 14 }: { size?: number }) {
@@ -265,14 +265,14 @@ function Hero() {
   return (
     <section className="min-h-screen flex items-center pt-14 px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center py-24 lg:py-0 lg:min-h-screen">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center py-8 lg:py-0 lg:min-h-screen">
 
           {/* Copy — left */}
           <div>
             <h1
-              className="text-white font-black leading-[0.92] mb-7 hero-title"
+              className="text-white font-black leading-[0.92] mb-4 lg:mb-7 hero-title"
               style={{
-                fontSize: 'clamp(52px, 7vw, 92px)',
+                fontSize: 'clamp(40px, 7vw, 92px)',
                 letterSpacing: '-0.04em',
               }}
             >
@@ -283,10 +283,10 @@ function Hero() {
               mentiras.
             </h1>
             <p
-              className="mb-10 leading-relaxed hero-subtitle"
+              className="mb-6 lg:mb-10 leading-relaxed hero-subtitle"
               style={{
                 color: '#9CA3AF',
-                fontSize: 'clamp(16px, 1.6vw, 19px)',
+                fontSize: 'clamp(15px, 1.6vw, 19px)',
                 maxWidth: '400px',
                 lineHeight: '1.65',
               }}
@@ -296,15 +296,17 @@ function Hero() {
             </p>
             <div className="hero-actions">
               <DownloadButtons />
-              <p className="mt-6 text-xs" style={{ color: '#4B5563' }}>
+              <p className="mt-4 lg:mt-6 text-xs" style={{ color: '#4B5563' }}>
                 Gratis · iOS & Android
               </p>
             </div>
           </div>
 
           {/* Phone mockup — right */}
-          <div className="hidden lg:flex justify-center items-center" style={{ height: '580px' }}>
-            <PhoneMockup />
+          <div className="flex justify-center items-start lg:items-center" style={{ height: '460px' }}>
+            <div className="scale-[0.82] lg:scale-100 origin-top">
+              <PhoneMockup />
+            </div>
           </div>
         </div>
       </div>
