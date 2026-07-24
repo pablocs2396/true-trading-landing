@@ -202,6 +202,17 @@
   animation: float 5s ease-in-out infinite;
 }
 
+/* ─── Live "en directo" pulse dot ─────────────────────────────── */
+@keyframes livePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+.live-dot {
+  animation: livePulse 2s ease-out infinite;
+}
+
 /* ─── Bento card hover ────────────────────────────────────────── */
 .bento-card {
   outline: 1px solid transparent;
@@ -298,6 +309,7 @@
   .chart-area  { animation: none; opacity: 1; }
   .chart-dot   { animation: none; opacity: 1; }
   .phone-float { animation: none; }
+  .live-dot { animation: none; }
   .btn-primary:active,
   .btn-ghost:active,
   .btn-nav:active { transform: none; }

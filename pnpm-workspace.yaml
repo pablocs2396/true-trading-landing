@@ -1,0 +1,6 @@
+verifyDepsBeforeRun: false
+onlyBuiltDependencies:
+  - esbuild
+  - puppeteer
+  - protobufjs
+  - '@firebase/util'

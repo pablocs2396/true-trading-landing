@@ -4,5 +4,9 @@ dist/
 *.png
 *.jpg
 *.jpeg
+# Assets públicos servidos por la web (logo, favicon, etc.) sí se versionan
+!public/*.png
+!public/*.jpg
+!public/*.jpeg
 true-trading-v2-main/
 tsconfig.tsbuildinfo

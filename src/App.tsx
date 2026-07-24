@@ -1,8 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
-import { TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, ChevronRight, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Check, Megaphone } from 'lucide-react'
+import { TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Megaphone, Video } from 'lucide-react'
+import { usePublicStats, useCountUp, formatCount } from './lib/publicStats'
 
 const APP_STORE_URL = 'https://apps.apple.com/es/app/truetrading/id6758015608'
 const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.truetrading.android&hl=es_419'
+const TELEGRAM_SUPPORT_URL = 'https://t.me/dudas_truetrading'
+
+/* ─── Cifras del bloque de stats ──────────────────────────────────
+ * `display` es el valor de reserva (fallback) que se muestra mientras
+ * llega el dato en vivo o si Firebase no está disponible.
+ * `live` indica de qué contador de `config/publicStats` se alimenta cada
+ * stat en tiempo real (null = valor fijo, se edita a mano aquí). */
+const STATS: { display: string; label: string; live: 'registrados' | 'analisis' | null }[] = [
+  { display: '+1.000', label: 'traders registrados', live: 'registrados' },
+  { display: '+500', label: 'análisis publicados', live: 'analisis' },
+  { display: '2', label: 'plataformas (iOS · Android)', live: null },
+]
 
 /* ─── Store logos ─────────────────────────────────────────────── */
 function AppStoreLogo({ size = 14 }: { size?: number }) {
@@ -139,7 +152,7 @@ function PhoneMockup() {
                 <span style={{ fontSize: '9px', fontWeight: '700', background: 'rgba(16,185,129,0.15)', color: '#10B981', padding: '2px 6px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
                   <TrendingUp size={8} strokeWidth={2.5} /> BUY
                 </span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF' }}>EUR/USD</span>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF' }}>XAU/USD</span>
                 <div className="ml-auto flex items-center gap-1">
                   <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
                   <span style={{ fontSize: '9px', color: '#10B981', fontWeight: '600' }}>Activa</span>
@@ -148,15 +161,11 @@ function PhoneMockup() {
               <div className="flex gap-3">
                 <div>
                   <p style={{ fontSize: '9px', color: '#6B7280', marginBottom: '1px' }}>Entrada</p>
-                  <p style={{ fontSize: '11px', color: '#FFFFFF', fontWeight: '600' }}>1.0850</p>
+                  <p style={{ fontSize: '11px', color: '#FFFFFF', fontWeight: '600' }}>2.345,0</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '9px', color: '#6B7280', marginBottom: '1px' }}>TP</p>
-                  <p style={{ fontSize: '11px', color: '#10B981', fontWeight: '600' }}>1.0920</p>
-                </div>
-                <div>
-                  <p style={{ fontSize: '9px', color: '#6B7280', marginBottom: '1px' }}>SL</p>
-                  <p style={{ fontSize: '11px', color: '#EF4444', fontWeight: '600' }}>1.0810</p>
+                  <p style={{ fontSize: '9px', color: '#6B7280', marginBottom: '1px' }}>Mercado</p>
+                  <p style={{ fontSize: '11px', color: '#10B981', fontWeight: '600' }}>Oro</p>
                 </div>
               </div>
             </div>
@@ -244,13 +253,24 @@ function Navbar() {
         transition: 'border-color 250ms cubic-bezier(0.23, 1, 0.32, 1)',
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <img src="/icon.png" alt="TrueTrading" className="w-7 h-7 rounded-lg" />
-          <span className="text-white font-semibold text-[15px] tracking-tight">
-            TrueTrading
-          </span>
-        </div>
+      <div className="relative max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        {/* Texto a la izquierda (donde estaba) */}
+        <span className="text-white font-semibold text-[15px] tracking-tight">
+          True Trading
+        </span>
+        {/* Logo centrado */}
+        <a
+          href="/"
+          aria-label="True Trading — inicio"
+          className="absolute left-1/2 -translate-x-1/2 flex items-center"
+        >
+          <img
+            src="/logo.png"
+            alt="True Trading"
+            className="w-9 h-9 rounded-xl"
+            style={{ border: '1px solid rgba(255,255,255,0.12)' }}
+          />
+        </a>
         <a href={downloadHref} className="btn-nav">
           {isAndroid ? <AndroidLogo size={12} /> : <AppStoreLogo size={12} />}
           Descargar
@@ -291,8 +311,8 @@ function Hero() {
                 lineHeight: '1.65',
               }}
             >
-              Accedes a las señales cuando demuestras que sabes operar.
-              No antes. Eso es TrueTrading.
+              Aprende trading con la verdad, completamente gratis.
+              Eso es TrueTrading.
             </p>
             <div className="hero-actions">
               <DownloadButtons />
@@ -315,14 +335,39 @@ function Hero() {
 }
 
 /* ─── Stats bar ───────────────────────────────────────────────── */
+function StatNumber({ target, fallback }: { target: number | null; fallback: string }) {
+  const animated = useCountUp(target)
+  const isLive = target != null && animated != null
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span
+        className="block tabular-nums"
+        style={{ color: '#F3F4F6', fontSize: '44px', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1 }}
+      >
+        {isLive ? formatCount(animated as number) : fallback}
+      </span>
+      {isLive && (
+        <span
+          aria-label="en directo"
+          title="Actualizado en tiempo real"
+          style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10B981', boxShadow: '0 0 0 0 rgba(16,185,129,0.6)' }}
+          className="live-dot"
+        />
+      )}
+    </span>
+  )
+}
+
 function StatsBar() {
   const { ref, inView } = useScrollReveal<HTMLDivElement>()
+  const live = usePublicStats()
 
-  const items = [
-    { display: '+10.000', label: 'traders activos', delay: 0 },
-    { display: '+500', label: 'análisis publicados', delay: 100 },
-    { display: '2', label: 'plataformas (iOS · Android)', delay: 200 },
-  ]
+  const items = STATS.map((s, i) => ({
+    ...s,
+    delay: i * 100,
+    target: s.live ? live[s.live] : null,
+  }))
+
   return (
     <div ref={ref} className="py-14 px-6" style={{ borderTop: '1px solid #2C2C2C' }}>
       <div className="max-w-6xl mx-auto">
@@ -333,18 +378,7 @@ function StatsBar() {
               className={`reveal ${inView ? 'in-view' : ''}`}
               style={{ animationDelay: `${it.delay}ms` }}
             >
-              <span
-                className="block tabular-nums"
-                style={{
-                  color: '#F3F4F6',
-                  fontSize: '44px',
-                  fontWeight: 700,
-                  letterSpacing: '-0.04em',
-                  lineHeight: 1,
-                }}
-              >
-                {it.display}
-              </span>
+              <StatNumber target={it.target} fallback={it.display} />
               <span
                 className="block mt-2.5"
                 style={{ color: '#6B7280', fontSize: '13px', lineHeight: 1.4 }}
@@ -409,7 +443,7 @@ function MeritAccess() {
                 step: '02',
                 icon: Lock,
                 label: 'Solicita acceso',
-                desc: 'Una vez completada la formación, envías tu solicitud de afiliación.',
+                desc: 'Una vez completado el minicurso, envías tu solicitud de afiliación.',
                 color: '#F59E0B',
                 active: false,
               },
@@ -417,7 +451,7 @@ function MeritAccess() {
                 step: '03',
                 icon: Zap,
                 label: 'Opera con criterio',
-                desc: 'Señales reales, análisis semanal y comunidad de traders verificados.',
+                desc: 'Señales reales, análisis semanal, PDFs con contenido de valor y una IA de trading.',
                 color: '#10B981',
                 active: false,
               },
@@ -458,10 +492,6 @@ function MeritAccess() {
 
 /* ─── Bento: Signal card mockup ───────────────────────────────── */
 function SignalMockup() {
-  const tps = [
-    { label: 'TP1', price: '1.0892', pips: '+42', hit: true },
-    { label: 'TP2', price: '1.0934', pips: '+84', hit: false },
-  ]
   return (
     <div className="rounded-xl overflow-hidden" style={{ background: '#000000', border: '1px solid #2C2C2C', borderTop: '2px solid #10B981' }}>
       {/* Section label — same style as app */}
@@ -473,27 +503,18 @@ function SignalMockup() {
           <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded" style={{ background: 'rgba(16,185,129,0.15)', color: '#10B981' }}>
             <TrendingUp size={10} strokeWidth={2.5} /> BUY
           </span>
-          <span className="font-semibold text-sm" style={{ color: '#FFFFFF' }}>EUR/USD</span>
+          <span className="font-semibold text-sm" style={{ color: '#FFFFFF' }}>XAU/USD</span>
+          <span className="text-xs" style={{ color: '#4B5563' }}>· Oro</span>
           {/* Status dot */}
           <div className="ml-auto flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.1)' }}>
             <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#10B981' }} />
             <span style={{ fontSize: '10px', color: '#10B981', fontWeight: '600' }}>Activa</span>
           </div>
         </div>
-        <div className="text-xs mb-3" style={{ color: '#4B5563' }}>Entrada · 1.0850</div>
-        <div className="flex flex-col gap-1.5 mb-3">
-          {tps.map(tp => (
-            <div key={tp.label} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: tp.hit ? 'rgba(16,185,129,0.08)' : '#1E1E1E', border: `1px solid ${tp.hit ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)'}` }}>
-              <span style={{ color: '#4B5563', width: '24px' }}>{tp.label}</span>
-              <span className="font-tabular flex-1" style={{ color: '#FFFFFF' }}>{tp.price}</span>
-              <span className="flex items-center gap-1" style={{ color: tp.hit ? '#10B981' : '#4B5563' }}>
-                {tp.hit ? <Check size={10} strokeWidth={2.5} /> : <ChevronRight size={10} strokeWidth={2} />}
-                {tp.pips}
-              </span>
-            </div>
-          ))}
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
+          <span style={{ color: '#6B7280' }}>Entrada</span>
+          <span className="font-tabular ml-auto" style={{ color: '#FFFFFF', fontSize: '13px', fontWeight: 600 }}>2.345,0</span>
         </div>
-        <div className="text-xs" style={{ color: '#4B5563' }}>SL · 1.0822</div>
       </div>
 
       {/* Second signal — SELL, closed */}
@@ -502,7 +523,7 @@ function SignalMockup() {
           <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded" style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>
             <TrendingDown size={10} strokeWidth={2.5} /> SELL
           </span>
-          <span className="font-semibold text-xs" style={{ color: '#9CA3AF' }}>GBP/USD</span>
+          <span className="font-semibold text-xs" style={{ color: '#9CA3AF' }}>XAU/USD</span>
           <span className="ml-auto text-xs font-bold font-tabular" style={{ color: '#10B981' }}>+67 pips</span>
           <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#1E1E1E', color: '#6B7280' }}>Cerrada</span>
         </div>
@@ -641,6 +662,7 @@ function CommunityMockup() {
   const channels = [
     { Icon: Zap, name: 'Señales', desc: 'Alertas en tiempo real', badge: 3 },
     { Icon: FileText, name: 'Análisis', desc: 'Técnico y fundamental', badge: 0 },
+    { Icon: Video, name: 'Llamadas', desc: 'Grupales cada semana', badge: 0 },
     { Icon: MessageSquare, name: 'General', desc: 'Comunidad de traders', badge: 12 },
     { Icon: Megaphone, name: 'Anuncios', desc: 'Novedades de la app', badge: 1 },
   ]
@@ -688,7 +710,7 @@ function Features() {
                 <Zap size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
                 <h3 className="font-semibold text-base" style={{ color: '#FFFFFF', letterSpacing: '-0.01em' }}>Señales de trading</h3>
               </div>
-              <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6' }}>Entrada, TP y SL claros. Con estado en tiempo real — Activa, En sesión, Cerrada. Sin ambigüedad.</p>
+              <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6' }}>Dirección y entrada claras, con captura real de la app. Con estado en tiempo real — Activa, En sesión, Cerrada. Sin ambigüedad.</p>
             </div>
             <SignalMockup />
           </div>
@@ -710,9 +732,9 @@ function Features() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
-                <h3 className="font-semibold text-base" style={{ color: '#FFFFFF', letterSpacing: '-0.01em' }}>Formación</h3>
+                <h3 className="font-semibold text-base" style={{ color: '#FFFFFF', letterSpacing: '-0.01em' }}>Herramientas</h3>
               </div>
-              <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6' }}>Los mismos minicursos que completas para ganar acceso. Básico, intermedio y avanzado.</p>
+              <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6' }}>Los minicursos que completas para ganar acceso, más estrategia, IA y PDFs de valor.</p>
             </div>
             <CoursesMockup />
           </div>
@@ -724,7 +746,7 @@ function Features() {
                 <MessageSquare size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
                 <h3 className="font-semibold text-base" style={{ color: '#FFFFFF', letterSpacing: '-0.01em' }}>Comunidad</h3>
               </div>
-              <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6' }}>Canales temáticos con traders verificados. Señales, análisis, noticias y debate.</p>
+              <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6' }}>Canales temáticos con traders verificados y llamadas grupales semanales. Señales, análisis, noticias y debate.</p>
             </div>
             <CommunityMockup />
           </div>
@@ -737,7 +759,7 @@ function Features() {
                   <BarChart3 size={16} style={{ color: '#10B981' }} strokeWidth={1.5} />
                   <h3 className="font-semibold text-base" style={{ color: '#FFFFFF', letterSpacing: '-0.01em' }}>Diario de trading</h3>
                 </div>
-                <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6', maxWidth: '360px' }}>Conecta Myfxbook y sincroniza tus operaciones reales automáticamente. Win rate, pips, racha. Sin excusas.</p>
+                <p className="text-sm" style={{ color: '#6B7280', lineHeight: '1.6', maxWidth: '360px' }}>Conecta Myfxbook y sincroniza tus operaciones automáticamente, o regístralas de forma manual. Win rate, pips, racha. Sin excusas.</p>
               </div>
               <span className="text-xs font-medium px-3 py-1.5 rounded-full self-start shrink-0" style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.2)' }}>
                 Sincroniza con Myfxbook
@@ -858,23 +880,27 @@ function Manifesto() {
 const faqs = [
   {
     q: '¿Es gratuita la app?',
-    a: 'Sí, TrueTrading es gratuita para descargar en iOS y Android. El acceso a señales, formación y comunidad está incluido.',
+    a: 'Sí, TrueTrading es gratuita para descargar en iOS y Android. El acceso a señales, minicursos y comunidad está incluido.',
   },
   {
-    q: '¿Por qué necesito completar cursos antes de acceder a las señales?',
+    q: '¿Por qué necesito completar el minicurso antes de acceder a las señales?',
     a: 'Porque operar sin entender el riesgo es peligroso. En TrueTrading creemos que las señales son útiles solo si el trader sabe interpretarlas. Por eso el acceso se gana, no se compra.',
   },
   {
     q: '¿Qué mercados se analizan?',
-    a: 'Principalmente Forex (pares de divisas), índices bursátiles y materias primas. Las señales incluyen dirección, entrada, take profit y stop loss con estado en tiempo real.',
+    a: 'Las señales se centran en el oro (XAU/USD). Cada señal incluye la dirección y la entrada, con estado en tiempo real y captura real de la app.',
   },
   {
     q: '¿Cómo funciona el Diario de Trading?',
-    a: 'Conecta tu cuenta de Myfxbook y tus operaciones se sincronizan automáticamente. Verás tu win rate, pips totales, historial y estadísticas detalladas.',
+    a: 'Conecta tu cuenta de Myfxbook y tus operaciones se sincronizan automáticamente. También puedes registrarlas de forma manual. Verás tu win rate, pips totales, historial y estadísticas detalladas.',
   },
   {
     q: '¿Qué es la racha diaria?',
-    a: 'La racha mide los días consecutivos que accedes a la app. Es un recordatorio de que la constancia es parte del juego. Los traders con más racha aparecen en el ranking de la comunidad.',
+    a: 'La racha mide los días consecutivos que accedes a la app. Es un recordatorio de que la constancia es parte del juego.',
+  },
+  {
+    q: '¿Cómo contacto con soporte?',
+    a: 'Escríbenos por Telegram a @dudas_truetrading. Resolvemos dudas sobre la app, el acceso y el minicurso.',
   },
 ]
 
@@ -1000,13 +1026,13 @@ function Footer() {
     <footer className="px-6 py-10" style={{ borderTop: '1px solid #252525', background: '#121212' }}>
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-2">
-          <img src="/icon.png" alt="TrueTrading" className="w-5 h-5 rounded-md opacity-60" />
-          <span className="text-xs" style={{ color: '#4B5563' }}>© 2025 TrueTrading</span>
+          <img src="/logo.png" alt="True Trading" className="w-5 h-5 rounded-md opacity-70" />
+          <span className="text-xs" style={{ color: '#4B5563' }}>© 2025 True Trading</span>
         </div>
         <div className="flex items-center gap-8">
           <a href="/privacidad" className="footer-link text-xs" style={{ color: '#4B5563' }}>Privacidad</a>
           <a href="/terminos" className="footer-link text-xs" style={{ color: '#4B5563' }}>Términos</a>
-          <a href="mailto:hola@truetrading.app" className="footer-link text-xs" style={{ color: '#4B5563' }}>Contacto</a>
+          <a href={TELEGRAM_SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="footer-link text-xs" style={{ color: '#4B5563' }}>Soporte · Telegram</a>
         </div>
       </div>
     </footer>
