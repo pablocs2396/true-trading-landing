@@ -24,34 +24,43 @@
   p.sub{font-size:14px;line-height:1.55;color:rgba(255,255,255,.62);margin:0 0 26px}
   .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
     padding:16px 22px;border-radius:9999px;border:none;font-size:15px;font-weight:700;
-    text-decoration:none;cursor:pointer;font-family:inherit;
+    text-decoration:none;cursor:pointer;font-family:inherit;color:#fff;
     transition:transform 120ms cubic-bezier(.23,1,.32,1),background-color 140ms}
   .btn:active{transform:scale(.97)}
   .btn-primary{background:#10B981;color:#000;
     box-shadow:0 0 0 1px rgba(16,185,129,.35),0 4px 24px rgba(16,185,129,.3)}
-  .btn-ghost{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12);margin-top:12px}
-  .steps{margin:26px 0 0;padding:18px 18px 16px;border-radius:16px;
+  .btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);margin-top:12px}
+  .steps{margin:0 0 22px;padding:18px 18px 16px;border-radius:16px;
     background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);text-align:left}
   .steps h2{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
     color:#10B981;margin:0 0 12px}
   .steps ol{margin:0;padding-left:20px}
-  .steps li{font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.8);margin-bottom:7px}
+  .steps li{font-size:14px;line-height:1.6;color:rgba(255,255,255,.82);margin-bottom:8px}
   .steps li:last-child{margin-bottom:0}
-  .steps b{color:#fff;font-weight:600}
+  .steps b{color:#fff;font-weight:700}
   .foot{margin-top:22px;font-size:11.5px;color:rgba(255,255,255,.32);line-height:1.5}
-  .foot a{color:rgba(255,255,255,.5)}
+  .foot a{color:rgba(255,255,255,.55)}
   .spinner{width:26px;height:26px;margin:0 auto;border-radius:50%;
     border:2.5px solid rgba(255,255,255,.14);border-top-color:#10B981;
     animation:spin .7s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+  /* Flecha que señala el menú del navegador de TikTok (esquina superior derecha) */
+  .arrow{position:fixed;top:6px;right:10px;z-index:5;pointer-events:none;
+    animation:bob 1.5s ease-in-out infinite}
+  .arrow svg{width:92px;height:100px;color:#10B981}
+  @keyframes bob{0%,100%{transform:translateY(8px)}50%{transform:translateY(0)}}
   [hidden]{display:none!important}
 </style>
 </head>
 <body>
+  <div class="arrow" id="arrow" hidden aria-hidden="true">
+    <svg viewBox="0 0 100 108" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 102 C 8 78 16 58 34 60 C 50 62 50 80 36 82 C 20 84 16 58 34 40 C 48 26 62 18 80 12"/><path d="M66 6 L82 11 L77 27"/></svg>
+  </div>
+
   <main class="wrap">
     <img class="logo" src="/logo.png" alt="TrueTrading" />
 
-    <!-- Navegador normal: redirect directo -->
+    <!-- Navegador normal (Safari, Chrome…): redirect directo -->
     <section id="auto">
       <h1>Abriendo Telegram…</h1>
       <p class="sub">Te estamos llevando al canal de TrueTrading.</p>
@@ -62,42 +71,50 @@
     <!-- Navegador embebido (TikTok, Instagram…) -->
     <section id="inapp" hidden>
       <h1 id="title">Únete al canal de Telegram</h1>
-      <p class="sub" id="sub">Un toque y estás dentro.</p>
+      <p class="sub" id="sub"></p>
 
-      <a class="btn btn-primary" id="openBtn" href="#">
+      <div class="steps" id="steps" hidden>
+        <h2 id="stepsTitle">Cómo entrar</h2>
+        <ol id="stepsList"></ol>
+      </div>
+
+      <a class="btn btn-primary" id="openBtn" href="#" hidden>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.6 20c-.25 1.1-.9 1.37-1.83.85l-5.05-3.72-2.44 2.35c-.27.27-.5.5-1.02.5l.36-5.15L17.99 6.4c.4-.36-.09-.56-.63-.2L5.78 13.5.83 11.95c-1.08-.34-1.1-1.08.22-1.6L20.5 2.78c.9-.33 1.68.2 1.4 1.52Z"/></svg>
         <span id="openBtnLabel">Abrir en Telegram</span>
       </a>
 
-      <button class="btn btn-ghost" id="copyBtn" type="button" hidden>
+      <button class="btn btn-ghost" id="copyBtn" type="button">
         <span id="copyLabel">Copiar enlace</span>
       </button>
 
-      <div class="steps" id="steps" hidden>
-        <h2 id="stepsTitle">Si no se abre</h2>
-        <ol id="stepsList"></ol>
-      </div>
+      <a class="btn btn-ghost" id="tryBtn" href="#" hidden>Intentar abrir Telegram igualmente</a>
 
-      <p class="foot">
-        <a id="hintLink" href="#" hidden>No se abre / no tengo Telegram</a>
-        <span id="footNote">Canal privado de TrueTrading en Telegram.</span>
-      </p>
+      <p class="foot" id="foot"></p>
     </section>
   </main>
 
 <script>
 (function () {
-  var INVITE   = 'fM4O7FhDgnYxNjM0';
-  var HTTPS    = 'https://t.me/+' + INVITE;                  // Universal Link (fuera de webviews)
-  var TG       = 'tg://join?invite=' + INVITE;               // Esquema nativo (toque del usuario)
-  var INTENT   = 'intent://join?invite=' + INVITE +
-                 '#Intent;scheme=tg;S.browser_fallback_url=' + encodeURIComponent(HTTPS) + ';end';
-  var STORE_IOS = 'https://apps.apple.com/app/telegram-messenger/id686449807';
+  var INVITE = 'fM4O7FhDgnYxNjM0';
+  var HTTPS  = 'https://t.me/+' + INVITE;
+  var TG     = 'tg://join?invite=' + INVITE;
+  var SELF   = 'https://www.truetrading.es/toni';
+  var PLAY   = 'https://play.google.com/store/apps/details?id=org.telegram.messenger';
+  var APPSTORE = 'https://apps.apple.com/app/telegram-messenger/id686449807';
+
+  // Android, paso 1: intent explícito al paquete de Telegram (formato que usan los "app openers").
+  // Si Telegram no está instalado → Play Store (los webviews sí abren Play Store nativo).
+  var INTENT_TG = 'intent://t.me/+' + INVITE +
+    '#Intent;scheme=https;package=org.telegram.messenger;S.browser_fallback_url=' +
+    encodeURIComponent(PLAY) + ';end';
+  // Android, paso 2: sacar al usuario del webview abriendo ESTA página en Chrome.
+  // Chrome sí resuelve el App Link de t.me y abre Telegram.
+  var INTENT_CHROME = 'intent://www.truetrading.es/toni#Intent;scheme=https;package=com.android.chrome;' +
+    'S.browser_fallback_url=' + encodeURIComponent(SELF) + ';end';
 
   var ua = navigator.userAgent || '';
   var isAndroid = /android/i.test(ua);
-  var isIOS = /iphone|ipad|ipod/i.test(ua) ||
-              (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var isIOS = /iphone|ipad|ipod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
 
   var isTikTok    = /BytedanceWebview|musical_ly|Bytelo|trill|aweme|TikTok/i.test(ua);
   var isInstagram = /Instagram/i.test(ua);
@@ -107,105 +124,113 @@
 
   function $(id) { return document.getElementById(id); }
 
-  // ── Navegador real (Safari, Chrome…): el Universal Link funciona ──
+  // ── Navegador real: el enlace t.me funciona tal cual ──
   if (!inApp) {
     $('autoLink').href = HTTPS;
     setTimeout(function () { location.replace(HTTPS); }, 60);
     return;
   }
 
-  // ── Dentro de un webview embebido ──
+  // ── Webview embebido ──
   $('auto').hidden = true;
   $('inapp').hidden = false;
 
   var appName = isTikTok ? 'TikTok' : isInstagram ? 'Instagram' : isFacebook ? 'Facebook' : 'esta app';
   var list = $('stepsList');
-
-  function addStep(html) {
-    var li = document.createElement('li');
-    li.innerHTML = html;
-    list.appendChild(li);
-  }
-
-  // ¿El usuario ha salido de la página? Entonces la app se abrió.
-  var left = false;
-  function markLeft() { left = true; }
-  document.addEventListener('visibilitychange', function () { if (document.hidden) markLeft(); });
-  window.addEventListener('pagehide', markLeft);
-
-  // Plan B: sólo aparece cuando el intento falla de verdad.
-  var fallbackShown = false;
-  function showFallback() {
-    if (fallbackShown) return;
-    fallbackShown = true;
-
-    $('title').textContent = appName + ' está bloqueando Telegram';
-    $('sub').textContent = 'Su navegador interno no puede abrir apps. Sal de él y entras al instante:';
-    $('openBtnLabel').textContent = 'Reintentar abrir Telegram';
-    $('openBtn').className = 'btn btn-ghost';
-    $('hintLink').hidden = true;
-    $('footNote').hidden = false;
-    $('footNote').innerHTML = '¿No tienes Telegram? <a href="' + STORE_IOS + '">Descárgalo aquí</a>';
-
+  function setSteps(items) {
     list.innerHTML = '';
-    if (isIOS) {
-      addStep('Toca el icono <b>“…”</b> o la <b>flecha</b> de la esquina de la pantalla.');
-      addStep('Elige <b>“Abrir en el navegador”</b> / <b>“Abrir en Safari”</b>.');
-      addStep('Esta página se abrirá en Safari y <b>Telegram se abrirá solo</b>.');
-    } else {
-      addStep('Toca los <b>tres puntos (⋮)</b> arriba a la derecha.');
-      addStep('Elige <b>“Abrir en el navegador”</b>.');
-      addStep('En Chrome, Telegram se abrirá solo.');
+    for (var i = 0; i < items.length; i++) {
+      var li = document.createElement('li');
+      li.innerHTML = items[i];
+      list.appendChild(li);
     }
     $('steps').hidden = false;
-    $('copyBtn').hidden = false;
-    $('inapp').insertBefore($('steps'), $('openBtn'));
-    $('steps').style.margin = '0 0 20px';
   }
 
-  // Android → intent:// (lo resuelve el SO, no el webview).
-  // iOS     → tg:// mediante toque real: los redirects por JS los bloquea Apple.
-  $('openBtn').setAttribute('href', isAndroid ? INTENT : TG);
-  $('openBtn').setAttribute('rel', 'noopener');
+  // ¿Se fue de la página? → la app se abrió.
+  var left = false;
+  document.addEventListener('visibilitychange', function () { if (document.hidden) left = true; });
+  window.addEventListener('pagehide', function () { left = true; });
 
-  if (isIOS) {
-    $('sub').textContent = 'Pulsa el botón para abrir el canal en tu Telegram.';
-    $('hintLink').hidden = false;
-    $('footNote').hidden = true;
-  }
-
-  $('openBtn').addEventListener('click', function () {
-    setTimeout(function () {
-      if (left || document.hidden) return;   // la app se abrió
-      showFallback();
-    }, isIOS ? 1500 : 1200);
-  });
-
-  $('hintLink').addEventListener('click', function (e) { e.preventDefault(); showFallback(); });
-
-  // ── Copiar enlace, con fallback para webviews sin Clipboard API ──
-  $('copyBtn').addEventListener('click', function () {
-    var original = $('copyLabel').textContent;
-    function done() {
-      $('copyLabel').textContent = '¡Enlace copiado!';
-      setTimeout(function () { $('copyLabel').textContent = original; }, 2200);
-    }
-    function legacyCopy() {
+  function copy(cb) {
+    function legacy() {
       var ta = document.createElement('textarea');
-      ta.value = HTTPS;
-      ta.setAttribute('readonly', '');
+      ta.value = HTTPS; ta.setAttribute('readonly', '');
       ta.style.cssText = 'position:absolute;left:-9999px;top:0';
-      document.body.appendChild(ta);
-      ta.select();
-      ta.setSelectionRange(0, ta.value.length);
-      try { document.execCommand('copy'); done(); }
-      catch (e) { $('copyLabel').textContent = HTTPS; }
-      document.body.removeChild(ta);
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, HTTPS.length);
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta); cb(ok);
     }
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(HTTPS).then(done, legacyCopy);
-    } else { legacyCopy(); }
+      navigator.clipboard.writeText(HTTPS).then(function () { cb(true); }, legacy);
+    } else legacy();
+  }
+  $('copyBtn').addEventListener('click', function () {
+    var original = $('copyLabel').textContent;
+    copy(function (ok) {
+      $('copyLabel').textContent = ok ? '¡Enlace copiado!' : HTTPS;
+      if (ok) setTimeout(function () { $('copyLabel').textContent = original; }, 2200);
+    });
   });
+
+  // ─────────────────── ANDROID ───────────────────
+  if (isAndroid) {
+    var stage = 0;
+    var btn = $('openBtn');
+    btn.hidden = false;
+    btn.setAttribute('href', INTENT_TG);
+    $('sub').textContent = 'Pulsa el botón y se abre tu app de Telegram.';
+    $('foot').innerHTML = '¿No tienes Telegram? <a href="' + PLAY + '">Descárgalo aquí</a>';
+
+    btn.addEventListener('click', function () {
+      setTimeout(function () {
+        if (left || document.hidden) return;
+        stage++;
+        if (stage === 1) {
+          // Telegram no se abrió desde el webview: probamos a saltar a Chrome.
+          btn.setAttribute('href', INTENT_CHROME);
+          $('openBtnLabel').textContent = 'Abrir en Chrome';
+          $('title').textContent = appName + ' ha bloqueado la app';
+          $('sub').textContent = 'Toca de nuevo: se abrirá en Chrome y desde ahí entra solo.';
+        } else {
+          showManual();
+        }
+      }, 1300);
+    });
+
+    function showManual() {
+      $('arrow').hidden = false;
+      $('title').textContent = 'Sal de ' + appName + ' para entrar';
+      $('sub').textContent = 'Su navegador interno no deja abrir apps. Son 5 segundos:';
+      setSteps([
+        'Toca los <b>tres puntos (⋮)</b> arriba a la derecha.',
+        'Elige <b>“Abrir en el navegador”</b>.',
+        'Telegram se abrirá solo.'
+      ]);
+      btn.className = 'btn btn-ghost';
+      $('openBtnLabel').textContent = 'Reintentar';
+    }
+    return;
+  }
+
+  // ─────────────────── iOS ───────────────────
+  // El WKWebView de TikTok no entrega esquemas de app ni Universal Links. Ninguna web puede
+  // abrir Telegram desde aquí; los "app openers" de pago muestran exactamente estas instrucciones.
+  $('arrow').hidden = false;
+  $('title').textContent = 'Sal de ' + appName + ' para entrar';
+  $('sub').textContent = 'El navegador de ' + appName + ' no deja abrir Telegram. Son 5 segundos:';
+  setSteps([
+    'Toca el icono <b>“…”</b> o la <b>flecha</b> de la esquina superior derecha.',
+    'Elige <b>“Abrir en el navegador”</b> / <b>“Abrir en Safari”</b>.',
+    'Telegram <b>se abrirá solo</b>.'
+  ]);
+  $('copyBtn').className = 'btn btn-primary';
+  $('copyLabel').textContent = 'O copiar el enlace y pegarlo en Safari';
+  $('copyLabel').style.fontSize = '14px';
+  var tryBtn = $('tryBtn');
+  tryBtn.hidden = false;
+  tryBtn.setAttribute('href', TG);
+  $('foot').innerHTML = '¿No tienes Telegram? <a href="' + APPSTORE + '">Descárgalo aquí</a>';
 })();
 </script>
 </body>
