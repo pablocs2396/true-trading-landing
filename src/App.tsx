@@ -1,9 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import { TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Megaphone, Video } from 'lucide-react'
 import { usePublicStats, useCountUp, formatCount } from './lib/publicStats'
+import { markDownloadClick } from './lib/attribution'
 
 const APP_STORE_URL = 'https://apps.apple.com/es/app/truetrading/id6758015608'
 const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.truetrading.android&hl=es_419'
+
+/* ─── Atribución de la descarga ────────────────────────────────────
+ * En Android el origen viaja en el parámetro `referrer` de la URL de Play:
+ * Google se lo guarda a la instalación y la app lo lee con la Play Install
+ * Referrer API, incluso semanas después. Es la vía determinista.
+ *
+ * ⚠️ El valor de `referrer` va URL-encoded ENTERO. Escribirlo en crudo
+ * ("utm_source=landing&utm_campaign=hero") hace que Play se quede sólo con
+ * `utm_source` y descarte el resto — el error clásico de esta API.
+ *
+ * iOS no tiene equivalente: lo resuelve `markDownloadClick` (portapapeles +
+ * ping al backend). Ver src/lib/attribution.ts. */
+function playUrlFor(campaign: string): string {
+  const referrer = encodeURIComponent(`utm_source=landing&utm_medium=web&utm_campaign=${campaign}`)
+  return `${GOOGLE_PLAY_URL}&referrer=${referrer}`
+}
 const TELEGRAM_SUPPORT_URL = 'https://t.me/dudas_truetrading'
 
 /* ─── Cifras del bloque de stats ──────────────────────────────────
@@ -63,15 +80,18 @@ function useScrollReveal<T extends Element>() {
 }
 
 /* ─── Download buttons ────────────────────────────────────────── */
-function DownloadButtons() {
+function DownloadButtons({ campaign }: { campaign: string }) {
   const { isAndroid } = usePlatform()
+  // `onClick` sin `preventDefault`: marca la descarga y deja que el <a> navegue
+  // como siempre. Si `markDownloadClick` falla, el enlace sigue funcionando.
+  const mark = () => markDownloadClick(campaign)
   return (
     <div className="flex flex-wrap gap-3">
-      <a href={APP_STORE_URL} className={isAndroid ? 'btn-ghost' : 'btn-primary'}>
+      <a href={APP_STORE_URL} onClick={mark} className={isAndroid ? 'btn-ghost' : 'btn-primary'}>
         <AppStoreLogo size={14} />
         App Store
       </a>
-      <a href={GOOGLE_PLAY_URL} className={isAndroid ? 'btn-primary' : 'btn-ghost'}>
+      <a href={playUrlFor(campaign)} onClick={mark} className={isAndroid ? 'btn-primary' : 'btn-ghost'}>
         <AndroidLogo size={14} />
         Google Play
       </a>
@@ -240,7 +260,7 @@ function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const downloadHref = isAndroid ? GOOGLE_PLAY_URL : APP_STORE_URL
+  const downloadHref = isAndroid ? playUrlFor('nav') : APP_STORE_URL
 
   return (
     <nav
@@ -271,7 +291,7 @@ function Navbar() {
             style={{ border: '1px solid rgba(255,255,255,0.12)' }}
           />
         </a>
-        <a href={downloadHref} className="btn-nav">
+        <a href={downloadHref} onClick={() => markDownloadClick('nav')} className="btn-nav">
           {isAndroid ? <AndroidLogo size={12} /> : <AppStoreLogo size={12} />}
           Descargar
         </a>
@@ -315,7 +335,7 @@ function Hero() {
               Eso es TrueTrading.
             </p>
             <div className="hero-actions">
-              <DownloadButtons />
+              <DownloadButtons campaign="hero" />
               <p className="mt-4 lg:mt-6 text-xs" style={{ color: '#4B5563' }}>
                 Gratis · iOS & Android
               </p>
@@ -1014,7 +1034,7 @@ function CTASection() {
         <p className="mb-10 text-base" style={{ color: '#6B7280', maxWidth: '360px', lineHeight: '1.65' }}>
           Descarga TrueTrading gratis. Sin compromisos, sin excusas.
         </p>
-        <DownloadButtons />
+        <DownloadButtons campaign="footer" />
       </div>
     </section>
   )
