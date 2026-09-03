@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { TrendingUp, TrendingDown, BookOpen, MessageSquare, BarChart3, ChevronDown, FileText, Flame, Trophy, Zap, Lock, CheckCircle, Megaphone, Video } from 'lucide-react'
 import { usePublicStats, useCountUp, formatCount } from './lib/publicStats'
-import { markDownloadClick } from './lib/attribution'
+import { markDownloadClick, needsIosHandoff } from './lib/attribution'
+import IosHandoffModal from './components/IosHandoffModal'
 
 const APP_STORE_URL = 'https://apps.apple.com/es/app/truetrading/id6758015608'
 const GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.truetrading.android&hl=es_419'
@@ -79,22 +80,81 @@ function useScrollReveal<T extends Element>() {
   return { ref, inView }
 }
 
+/* ─── Handoff a la App Store (iOS) ─────────────────────────────────
+ * En iPhone la única forma de que la app sepa de dónde viene el usuario es
+ * dejarle un código en el portapapeles, y al abrir la app iOS le pedirá
+ * permiso para pegarlo. Ese permiso se acepta si se ha explicado antes; sin
+ * contexto, se rechaza. De ahí el diálogo.
+ *
+ * Android no pasa por aquí: su `referrer` viaja en la URL de Play, es
+ * invisible para el usuario y no hay nada que explicar. Un escritorio tampoco:
+ * el portapapeles del ordenador no es el del teléfono.
+ *
+ * El estado es local a cada punto de descarga (nav, hero, footer). Sólo puede
+ * haber uno abierto a la vez y el diálogo es `fixed`, así que no merece la pena
+ * subir el estado a App y arrastrar un callback por todo el árbol. */
+function useIosHandoff() {
+  const [pending, setPending] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  // Devuelve el onClick del <a> de App Store. Si no toca diálogo, se comporta
+  // exactamente como antes: marca la descarga y deja navegar al enlace.
+  const handleAppStoreClick = (campaign: string) => (e: React.MouseEvent) => {
+    if (!needsIosHandoff()) {
+      void markDownloadClick(campaign)
+      return
+    }
+    e.preventDefault()
+    setPending(campaign)
+  }
+
+  const confirm = async () => {
+    if (!pending || busy) return
+    setBusy(true)
+    // Se espera al portapapeles antes de navegar: si se corta la escritura a
+    // medias, el usuario llega a la app sin código. El tap de este botón es el
+    // gesto de usuario que autoriza el writeText.
+    await markDownloadClick(pending)
+    window.location.href = APP_STORE_URL
+  }
+
+  const cancel = () => {
+    if (busy) return
+    setPending(null)
+  }
+
+  return {
+    handleAppStoreClick,
+    modal: <IosHandoffModal open={pending !== null} onConfirm={confirm} onCancel={cancel} busy={busy} />,
+  }
+}
+
 /* ─── Download buttons ────────────────────────────────────────── */
 function DownloadButtons({ campaign }: { campaign: string }) {
   const { isAndroid } = usePlatform()
-  // `onClick` sin `preventDefault`: marca la descarga y deja que el <a> navegue
-  // como siempre. Si `markDownloadClick` falla, el enlace sigue funcionando.
-  const mark = () => markDownloadClick(campaign)
+  const { handleAppStoreClick, modal } = useIosHandoff()
   return (
     <div className="flex flex-wrap gap-3">
-      <a href={APP_STORE_URL} onClick={mark} className={isAndroid ? 'btn-ghost' : 'btn-primary'}>
+      <a
+        href={APP_STORE_URL}
+        onClick={handleAppStoreClick(campaign)}
+        className={isAndroid ? 'btn-ghost' : 'btn-primary'}
+      >
         <AppStoreLogo size={14} />
         App Store
       </a>
-      <a href={playUrlFor(campaign)} onClick={mark} className={isAndroid ? 'btn-primary' : 'btn-ghost'}>
+      {/* Google Play no lleva diálogo: el origen viaja en el `referrer` de la
+          URL, sin que el usuario tenga que hacer nada. `onClick` sin
+          `preventDefault` — si markDownloadClick falla, el enlace navega igual. */}
+      <a
+        href={playUrlFor(campaign)}
+        onClick={() => void markDownloadClick(campaign)}
+        className={isAndroid ? 'btn-primary' : 'btn-ghost'}
+      >
         <AndroidLogo size={14} />
         Google Play
       </a>
+      {modal}
     </div>
   )
 }
@@ -261,6 +321,7 @@ function Navbar() {
   }, [])
 
   const downloadHref = isAndroid ? playUrlFor('nav') : APP_STORE_URL
+  const { handleAppStoreClick, modal: iosHandoffModal } = useIosHandoff()
 
   return (
     <nav
@@ -291,11 +352,18 @@ function Navbar() {
             style={{ border: '1px solid rgba(255,255,255,0.12)' }}
           />
         </a>
-        <a href={downloadHref} onClick={() => markDownloadClick('nav')} className="btn-nav">
+        <a
+          href={downloadHref}
+          onClick={
+            isAndroid ? () => void markDownloadClick('nav') : handleAppStoreClick('nav')
+          }
+          className="btn-nav"
+        >
           {isAndroid ? <AndroidLogo size={12} /> : <AppStoreLogo size={12} />}
           Descargar
         </a>
       </div>
+      {iosHandoffModal}
     </nav>
   )
 }

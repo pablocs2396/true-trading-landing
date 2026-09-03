@@ -50,27 +50,39 @@ function detectPlatform(): 'ios' | 'android' | 'unknown' {
 }
 
 /**
- * Marca esta descarga y devuelve, sin esperar a nada, el control al llamante.
+ * Tope de espera al portapapeles antes de navegar. El `writeText` tarda
+ * milisegundos, pero si el navegador se atasca no se deja al usuario mirando un
+ * botón muerto: se sigue a la store igual y queda la capa B.
+ */
+const CLIPBOARD_DEADLINE_MS = 400
+
+/**
+ * Marca esta descarga. Resuelve cuando el portapapeles ya está escrito (o se ha
+ * descartado), para que el llamante pueda navegar a la store SIN cortar la
+ * escritura a medias.
  *
  * ⚠️ Tiene que invocarse DENTRO del handler del click, de forma síncrona hasta
  * el `writeText`: `navigator.clipboard` exige gesto de usuario y un `await`
- * previo rompe esa cadena en Safari.
+ * previo rompe esa cadena en Safari. El tap sobre el botón del modal de
+ * confirmación es un gesto igual de válido que el del enlace.
  */
-export function markDownloadClick(campaign: string): void {
+export function markDownloadClick(campaign: string): Promise<void> {
   const token = newToken()
   const platform = detectPlatform()
 
   // Capa A — portapapeles. Puede fallar por permisos, por contexto no seguro o
   // porque el navegador no lo soporta: da igual, queda la capa B.
+  let clipboard: Promise<void>
   try {
-    void navigator.clipboard?.writeText(token)?.catch(() => {})
+    clipboard = navigator.clipboard?.writeText(token)?.catch(() => {}) ?? Promise.resolve()
   } catch {
-    /* sin portapapeles, seguimos */
+    clipboard = Promise.resolve()
   }
 
   // Capa B — registro del click con la IP de salida.
   // `keepalive` es lo que hace que la petición sobreviva a la navegación a la
   // store que ocurre inmediatamente después. Sin él, el navegador la cancela.
+  // Esta sí se deja suelta: no hay que esperarla para navegar.
   try {
     void fetch(REGISTER_CLICK_URL, {
       method: 'POST',
@@ -81,4 +93,14 @@ export function markDownloadClick(campaign: string): void {
   } catch {
     /* red caída: el usuario se descarga la app igual, sin atribución */
   }
+
+  return Promise.race([
+    clipboard,
+    new Promise<void>((resolve) => setTimeout(resolve, CLIPBOARD_DEADLINE_MS)),
+  ])
+}
+
+/** `true` si conviene explicar el paso del portapapeles antes de ir a la store. */
+export function needsIosHandoff(): boolean {
+  return detectPlatform() === 'ios'
 }
