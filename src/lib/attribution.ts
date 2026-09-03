@@ -80,16 +80,32 @@ export function markDownloadClick(campaign: string): Promise<void> {
   }
 
   // Capa B — registro del click con la IP de salida.
-  // `keepalive` es lo que hace que la petición sobreviva a la navegación a la
-  // store que ocurre inmediatamente después. Sin él, el navegador la cancela.
-  // Esta sí se deja suelta: no hay que esperarla para navegar.
+  //
+  // ⚠️ `Content-Type: text/plain` y NO `application/json`, aunque el cuerpo sea
+  // JSON. Con `application/json` la petición deja de ser "simple" y el navegador
+  // manda antes un preflight OPTIONS; al navegar a la store acto seguido, ese
+  // preflight se cancela y el POST no llega a salir. `keepalive` no cubre el
+  // preflight. Verificado contra producción: el click no se registraba.
+  // `text/plain` es un tipo simple, así que la petición sale directa.
+  //
+  // `sendBeacon` es la API pensada exactamente para esto —encolar un envío que
+  // sobreviva a que la página se descargue— y no la puede cancelar la
+  // navegación. El `fetch` con `keepalive` queda de reserva para navegadores
+  // que no lo tengan o lo rechacen (devuelve false si la cola está llena).
+  const body = JSON.stringify({ token, platform, campaign })
   try {
-    void fetch(REGISTER_CLICK_URL, {
-      method: 'POST',
-      keepalive: true,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, platform, campaign }),
-    }).catch(() => {})
+    const queued = navigator.sendBeacon?.(
+      REGISTER_CLICK_URL,
+      new Blob([body], { type: 'text/plain' }),
+    )
+    if (!queued) {
+      void fetch(REGISTER_CLICK_URL, {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'text/plain' },
+        body,
+      }).catch(() => {})
+    }
   } catch {
     /* red caída: el usuario se descarga la app igual, sin atribución */
   }
