@@ -422,6 +422,72 @@ function Hero() {
   )
 }
 
+/* ─── Vídeo: ¿Quién soy? ──────────────────────────────────────────
+ * Minicurso 1/13 real (el mismo que se ve en la app), grabado en vertical.
+ * Se sirve local en /videos porque el original en Firebase Storage es HEVC
+ * (.mov) y no se reproduce en Chrome/Firefox — se recodifica a H.264 mp4. */
+function VideoIntro() {
+  const { ref, inView } = useScrollReveal<HTMLDivElement>()
+
+  return (
+    <section className="py-24 px-6" style={{ borderTop: '1px solid #2C2C2C' }}>
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+          {/* Copy — left */}
+          <div ref={ref} className={`reveal ${inView ? 'in-view' : ''}`}>
+            <p className="text-xs font-medium tracking-[0.15em] uppercase mb-4" style={{ color: '#10B981' }}>
+              Minicurso 1/13
+            </p>
+            <h2
+              className="text-white font-bold leading-tight mb-6"
+              style={{ fontSize: 'clamp(32px, 4vw, 52px)', letterSpacing: '-0.035em' }}
+            >
+              ¿Quién soy?
+            </h2>
+            <p className="text-sm mb-6" style={{ color: '#9CA3AF', lineHeight: '1.75', maxWidth: '420px' }}>
+              Antes de nada, quién hay detrás de True Trading y por qué hago esto.
+              Este es el primer vídeo del minicurso con el que empieza todo el mundo en la app.
+            </p>
+            <div
+              className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl"
+              style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: '#10B981' }}
+            >
+              <Video size={14} strokeWidth={2} />
+              El mismo vídeo que verás al abrir la app
+            </div>
+          </div>
+
+          {/* Video — right, marco tipo teléfono para el 9:16 */}
+          <div className="flex justify-center">
+            <div
+              style={{
+                width: '280px',
+                borderRadius: '32px',
+                background: '#1E1E1E',
+                border: '1px solid #2C2C2C',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)',
+                overflow: 'hidden',
+                padding: '10px',
+              }}
+            >
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                poster="/videos/quien-soy-poster.jpg"
+                style={{ width: '100%', borderRadius: '22px', display: 'block', background: '#000' }}
+              >
+                <source src="/videos/quien-soy.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── Stats bar ───────────────────────────────────────────────── */
 function StatNumber({ target, fallback }: { target: number | null; fallback: string }) {
   const animated = useCountUp(target)
@@ -1133,6 +1199,7 @@ export default function App() {
     <div style={{ background: '#121212', minHeight: '100vh', color: '#FFFFFF' }}>
       <Navbar />
       <Hero />
+      <VideoIntro />
       <StatsBar />
       <MeritAccess />
       <Features />

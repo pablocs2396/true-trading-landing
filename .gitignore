@@ -8,5 +8,6 @@ dist/
 !public/*.png
 !public/*.jpg
 !public/*.jpeg
+!public/videos/*.jpg
 true-trading-v2-main/
 tsconfig.tsbuildinfo
