@@ -449,13 +449,6 @@ function VideoIntro() {
               Antes de nada, quién hay detrás de True Trading y por qué hago esto.
               Este es el primer vídeo del minicurso con el que empieza todo el mundo en la app.
             </p>
-            <div
-              className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl"
-              style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: '#10B981' }}
-            >
-              <Video size={14} strokeWidth={2} />
-              El mismo vídeo que verás al abrir la app
-            </div>
           </div>
 
           {/* Video — right, marco tipo teléfono para el 9:16 */}
