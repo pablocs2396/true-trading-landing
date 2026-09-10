@@ -1,5 +1,11 @@
 # CLAUDE.md — True Trading Landing
 
+## Gestor de paquetes — OBLIGATORIO
+
+**Prohibido usar `npm install` / `npm i` en este repo.** Usar siempre **pnpm** (`pnpm install`, `pnpm add`, `pnpm remove`, etc.).
+
+**Motivo:** protección frente a ataques de cadena de suministro en npm (paquetes comprometidos con scripts `preinstall`/`postinstall` maliciosos que exfiltran credenciales, tipo gusano "Shai-Hulud"). pnpm no ejecuta scripts de instalación de dependencias de terceros salvo aprobación explícita (`pnpm approve-builds`), lo que reduce ese riesgo. Antes de instalar cualquier dependencia nueva, revisar que el paquete es legítimo (descargas, mantenedor, fecha de publicación reciente sospechosa).
+
 Landing page corporativa para True Trading. Stack Vite + React + TypeScript + Tailwind.
 
 ## Stack
