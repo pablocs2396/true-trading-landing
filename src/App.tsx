@@ -1174,11 +1174,11 @@ function Footer() {
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="True Trading" className="w-5 h-5 rounded-md opacity-70" />
-          <span className="text-xs" style={{ color: '#4B5563' }}>© 2025 True Trading</span>
+          <span className="text-xs" style={{ color: '#4B5563' }}>© {new Date().getFullYear()} True Trading Hub, LLC</span>
         </div>
         <div className="flex items-center gap-8">
-          <a href="/privacidad" className="footer-link text-xs" style={{ color: '#4B5563' }}>Privacidad</a>
-          <a href="/terminos" className="footer-link text-xs" style={{ color: '#4B5563' }}>Términos</a>
+          <a href="/terminos" className="footer-link legal-link rounded-sm text-xs" style={{ color: '#4B5563' }}>Términos</a>
+          <a href="/privacidad" className="footer-link legal-link rounded-sm text-xs" style={{ color: '#4B5563' }}>Privacidad</a>
           <a href={TELEGRAM_SUPPORT_URL} target="_blank" rel="noopener noreferrer" className="footer-link text-xs" style={{ color: '#4B5563' }}>Soporte · Telegram</a>
         </div>
       </div>

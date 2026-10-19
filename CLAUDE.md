@@ -30,6 +30,8 @@ src/
   lib/
     publicStats.ts # contadores en vivo desde Firestore
     attribution.ts # marca el origen de las descargas — ver abajo
+  legal/           # /terminos y /privacidad (main.tsx elige página por pathname)
+    titular.ts     # datos del titular: un campo a null se pinta "Pendiente" en ámbar
 ```
 
 ## Atribución de descargas
@@ -72,6 +74,10 @@ CLAUDE.md de `true-trading-v2`; aquí sólo la mitad web:
 | Ruta | Componente | Auth |
 |------|-----------|------|
 | `/` | `App.tsx` | — |
+| `/terminos` | `legal/Terminos.tsx` | — |
+| `/privacidad` | `legal/Privacidad.tsx` | — |
+
+La app enlaza a `/terminos` y `/privacidad` desde login, perfil y normas del chat: no cambiar esas rutas. Si la app cambia (datos que trata, proveedores, afiliación), actualizar los textos y `ULTIMA_ACTUALIZACION`.
 
 ## Criterio de DONE
 

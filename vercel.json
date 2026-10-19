@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/toni", "destination": "/toni.html" }
+    { "source": "/toni", "destination": "/toni.html" },
+    { "source": "/terminos", "destination": "/index.html" },
+    { "source": "/privacidad", "destination": "/index.html" }
   ]
 }
