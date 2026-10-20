@@ -19,9 +19,9 @@ export const TITULAR: {
   forma: 'Sociedad de responsabilidad limitada (LLC) constituida en Nuevo México, EE. UU.',
   ein: '33-4409376',
   domicilio: '1209 Mountain Road PL NE, Ste N, Albuquerque, NM 87110, EE. UU.',
-  /** La app muestra este email en la pantalla de afiliación pendiente. Confirmar que sirve para temas legales. */
-  emailLegal: 'soporte@truetrading.com',
+  /** El mismo que muestra la app en la pantalla de afiliación pendiente: si cambia, cambiarlo en los dos sitios. */
+  emailLegal: 'soportetruetrading@gmail.com',
 }
 
-export const ULTIMA_ACTUALIZACION = '19 de octubre de 2026'
+export const ULTIMA_ACTUALIZACION = '20 de octubre de 2026'
 export const SOPORTE_TELEGRAM = 'https://t.me/dudas_truetrading'
